@@ -1,0 +1,18 @@
+import java.io.FileOutputStream
+import com.collibra.dgc.core.api.dto.file.AddFileRequest
+import com.collibra.dgc.core.api.dto.instance.attachment.AddAttachmentRequest
+
+def workbook
+def exportFileName
+def exportTempFile
+
+def fos =  new FileOutputStream(exportTempFile)
+workbook.write(fos)
+fos.close()
+
+
+def exportFileId = fileApi.addFile(AddFileRequest.builder().name(exportFileName).fileStream(new FileInputStream(exportTempFile)).build()).getId()
+def fileStream = fileApi.getFileAsStream(exportFileId)
+
+addAttachmentRequest = AddAttachmentRequest.builder().baseResourceType(item.getType()).baseResourceId(item.getId()).fileName(exportFileName).fileStream(fileStream).build()
+attachmentApi.addAttachment(addAttachmentRequest)
